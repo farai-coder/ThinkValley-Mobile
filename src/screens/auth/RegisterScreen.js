@@ -20,6 +20,7 @@ import { useRoute } from '@react-navigation/native';
 import { Linking } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import logoImage from '../../../assets/logo.png';
+import { alert } from '../../utils/alert';
 
 const SITE_URL = 'https://wetradeafrica.co.zw';
 
@@ -45,27 +46,27 @@ const RegisterScreen = ({ navigation }) => {
 
   const handleRegister = async () => {
     if (!email || !password || !firstName || !lastName || !phone) {
-      Alert.alert('Error', 'Please fill in all required fields');
+      alert('Error', 'Please fill in all required fields');
       return;
     }
 
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
-      Alert.alert('Error', 'Please enter a valid email address');
+      alert('Error', 'Please enter a valid email address');
       return;
     }
 
     if (password.length < 6) {
-      Alert.alert('Error', 'Password must be at least 6 characters');
+      alert('Error', 'Password must be at least 6 characters');
       return;
     }
 
     if (password !== confirmPassword) {
-      Alert.alert('Error', 'Passwords do not match');
+      alert('Error', 'Passwords do not match');
       return;
     }
 
     if (!acceptTerms) {
-      Alert.alert('Error', 'Please accept the Terms of Service and Privacy Policy');
+      alert('Error', 'Please accept the Terms of Service and Privacy Policy');
       return;
     }
 
@@ -84,7 +85,7 @@ const RegisterScreen = ({ navigation }) => {
         || (typeof error.response?.data === 'object'
           ? Object.values(error.response?.data || {}).flat().join(' ')
           : null);
-      Alert.alert('Registration Failed', detail || 'Something went wrong');
+      alert('Registration Failed', detail || 'Something went wrong');
     } finally {
       setIsLoading(false);
     }
@@ -229,12 +230,21 @@ const RegisterScreen = ({ navigation }) => {
           </View>
 
           <View style={styles.termsRow}>
-            <TouchableOpacity onPress={() => setAcceptTerms(!acceptTerms)}>
+            <TouchableOpacity
+              onPress={() => setAcceptTerms(!acceptTerms)}
+              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+              accessibilityRole="checkbox"
+              accessibilityState={{ checked: acceptTerms }}
+              accessibilityLabel="Accept Terms of Service and Privacy Policy"
+            >
               <View style={[styles.checkbox, acceptTerms && { backgroundColor: '#F47A20' }]}>
                 {acceptTerms && <Icon name="checkmark" size={14} color="#fff" />}
               </View>
             </TouchableOpacity>
-            <Text style={[styles.termsText, { color: '#64748b' }]}>
+            <Text
+              style={[styles.termsText, { color: '#64748b' }]}
+              onPress={() => setAcceptTerms(!acceptTerms)}
+            >
               I agree to the{' '}
               <Text style={[styles.termsLink, { color: '#D2620F' }]} onPress={openTerms}>Terms of Service</Text>
               {' '}and{' '}

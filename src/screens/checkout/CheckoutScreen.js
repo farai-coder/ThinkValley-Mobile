@@ -9,6 +9,7 @@ import {
   Alert,
   Image,
   ActivityIndicator,
+  Platform,
 } from 'react-native';
 import { useTheme } from '../../context/ThemeContext';
 import { useNavigation } from '@react-navigation/native';
@@ -19,6 +20,7 @@ import { paymentService } from '../../services/paymentService';
 import Icon from 'react-native-vector-icons/Ionicons';
 import logoImage from '../../../assets/logo.png';
 import responsive from '../../utils/responsive';
+import { alert } from '../../utils/alert';
 
 // Mirrors the web checkout (frontend/checkout.html): standard shipping is free
 // over $100, otherwise $9.99; express $14.99; tax 5%.
@@ -88,7 +90,7 @@ const CheckoutScreen = () => {
   const validateStep = () => {
     if (step === 1) {
       if (!shippingAddress.full_name.trim() || !shippingAddress.email.trim() || !shippingAddress.phone.trim()) {
-        Alert.alert('Missing Information', 'Please fill in your name, email and phone');
+        alert('Missing Information', 'Please fill in your name, email and phone');
         return false;
       }
       setStep(2);
@@ -96,7 +98,7 @@ const CheckoutScreen = () => {
     }
     if (step === 2) {
       if (!shippingAddress.address.trim() || !shippingAddress.city.trim() || !shippingAddress.postal_code.trim()) {
-        Alert.alert('Missing Information', 'Please fill in your street address, city and postal code');
+        alert('Missing Information', 'Please fill in your street address, city and postal code');
         return false;
       }
       setStep(3);
@@ -110,7 +112,7 @@ const CheckoutScreen = () => {
       const ImagePicker = require('expo-image-picker');
       const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
       if (!permission.granted) {
-        Alert.alert('Permission needed', 'Please allow photo access to upload your ID.');
+        alert('Permission needed', 'Please allow photo access to upload your ID.');
         return;
       }
       const result = await ImagePicker.launchImageLibraryAsync({
@@ -122,7 +124,7 @@ const CheckoutScreen = () => {
         setIdImage(result.assets[0].uri);
       }
     } catch (e) {
-      Alert.alert('Error', 'Could not open the photo picker.');
+      alert('Error', 'Could not open the photo picker.');
     }
   };
 
@@ -139,9 +141,13 @@ const CheckoutScreen = () => {
           setPaynowStatus(result.status);
           if (result.status === 'paid') {
             clearCart();
-            Alert.alert('Payment successful', `Order ${result.order_number} has been paid. Thank you!`, [
-              { text: 'View Orders', onPress: () => navigation.navigate('OrdersTab') },
-            ]);
+            if (Platform.OS === 'web') {
+              navigation.navigate('OrdersTab');
+            } else {
+              Alert.alert('Payment successful', `Order ${result.order_number} has been paid. Thank you!`, [
+                { text: 'View Orders', onPress: () => navigation.navigate('OrdersTab') },
+              ]);
+            }
           }
         }
       } catch (e) {
@@ -156,11 +162,11 @@ const CheckoutScreen = () => {
 
   const handlePlaceOrder = async () => {
     if (!cartItems.length) {
-      Alert.alert('Empty Cart', 'Your cart is empty.');
+      alert('Empty Cart', 'Your cart is empty.');
       return;
     }
     if (paymentMethod === 'cod' && !idImage) {
-      Alert.alert('ID Required', 'Please upload a photo of your ID card for cash on delivery verification.');
+      alert('ID Required', 'Please upload a photo of your ID card for cash on delivery verification.');
       return;
     }
 
@@ -190,9 +196,13 @@ const CheckoutScreen = () => {
 
       if (paymentMethod === 'cod') {
         clearCart();
-        Alert.alert('Order Placed!', `Your order ${order.order_number || ''} has been placed. Have your ID ready on delivery.`, [
-          { text: 'View Orders', onPress: () => navigation.navigate('OrdersTab') },
-        ]);
+        if (Platform.OS === 'web') {
+          navigation.navigate('OrdersTab');
+        } else {
+          Alert.alert('Order Placed!', `Your order ${order.order_number || ''} has been placed. Have your ID ready on delivery.`, [
+            { text: 'View Orders', onPress: () => navigation.navigate('OrdersTab') },
+          ]);
+        }
         return;
       }
 
@@ -207,7 +217,7 @@ const CheckoutScreen = () => {
       setPaynowInstructions(initiation.instructions || 'Check your phone and approve the payment prompt.');
       startPaynowPolling(initiation.payment_id);
     } catch (error) {
-      Alert.alert('Order Failed', error.response?.data?.detail || 'Failed to place order');
+      alert('Order Failed', error.response?.data?.detail || 'Failed to place order');
     } finally {
       setIsProcessing(false);
     }

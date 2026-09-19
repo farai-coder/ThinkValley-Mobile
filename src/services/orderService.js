@@ -1,5 +1,6 @@
 import apiClient from './api';
 import { ENDPOINTS } from '../config/api';
+import { Platform } from 'react-native';
 
 const money = (v) => Number(v || 0).toFixed(2);
 
@@ -67,11 +68,18 @@ export const orderService = {
     });
 
     if (idImageUri) {
-      formData.append('id_image', {
-        uri: idImageUri,
-        name: 'id_card.jpg',
-        type: 'image/jpeg',
-      });
+      if (Platform.OS === 'web') {
+        // On web, fetch the local blob/data URL and send a real Blob —
+        // the { uri } file shape only works on native.
+        const blob = await (await fetch(idImageUri)).blob();
+        formData.append('id_image', blob, 'id_card.jpg');
+      } else {
+        formData.append('id_image', {
+          uri: idImageUri,
+          name: 'id_card.jpg',
+          type: 'image/jpeg',
+        });
+      }
     }
 
     const response = await apiClient.post(ENDPOINTS.ORDERS, formData, {

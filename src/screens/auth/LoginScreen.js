@@ -18,6 +18,7 @@ import { authService } from '../../services/authService';
 import { googleAuthService } from '../../services/googleAuthService';
 import Icon from 'react-native-vector-icons/Ionicons';
 import logoImage from '../../../assets/logo.png';
+import { alert } from '../../utils/alert';
 
 const LoginScreen = ({ navigation }) => {
   const { colors, spacing, borderRadius, typography } = useTheme();
@@ -48,7 +49,7 @@ const LoginScreen = ({ navigation }) => {
 
   const handleLogin = async () => {
     if (!username || !password) {
-      Alert.alert('Error', 'Please enter both username and password');
+      alert('Error', 'Please enter both username and password');
       return;
     }
 
@@ -68,7 +69,7 @@ const LoginScreen = ({ navigation }) => {
       if (status === 400 || status === 401 || status === 404) {
         offerSignUp(username.trim());
       } else {
-        Alert.alert('Login Failed', error.response?.data?.detail || 'Invalid credentials');
+        alert('Login Failed', error.response?.data?.detail || 'Invalid credentials');
       }
     } finally {
       setIsLoading(false);
