@@ -30,6 +30,12 @@ const LoginScreen = ({ navigation }) => {
   const [showPassword, setShowPassword] = useState(false);
 
   const offerSignUp = (identifier) => {
+    if (Platform.OS === 'web') {
+      // Alert.alert is a no-op on web; go straight to sign-up with the
+      // identifier prefilled (the register screen links back to sign-in).
+      navigation.navigate('Register', { identifier });
+      return;
+    }
     Alert.alert(
       'No account found',
       `We couldn't find an account for "${identifier}". Would you like to create one?`,

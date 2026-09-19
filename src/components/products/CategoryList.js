@@ -120,7 +120,7 @@ CategoryList.displayName = 'CategoryList';
 
 const styles = StyleSheet.create({
   container: {
-    paddingVertical: spacing.md,
+    paddingVertical: 16,
   },
   scrollContent: {
     gap: 8,

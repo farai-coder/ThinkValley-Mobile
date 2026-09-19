@@ -108,6 +108,8 @@ web-build/
 
 # Metro
 .metro-health-check*
+metro.log
+metro.log
 
 # debug
 npm-debug.*
