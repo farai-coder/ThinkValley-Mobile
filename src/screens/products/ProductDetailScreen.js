@@ -152,12 +152,12 @@ const ProductDetailScreen = () => {
         </View>
         <View style={[styles.priceBlock, { backgroundColor: colors.secondary, padding: responsive.padding.md }]}>
           <Text style={[styles.currentPrice, { color: colors.textPrimary, fontSize: responsive.fontSize.xl }]}>
-            ${Number(product.price)?.toFixed(2)}
+            ${Number(product.sale_price && product.sale_price < product.price ? product.sale_price : product.price)?.toFixed(2)}
           </Text>
-          {product.old_price && (
+          {product.sale_price && product.sale_price < product.price && (
             <>
               <Text style={[styles.oldPrice, { color: colors.textMuted, fontSize: responsive.fontSize.sm }]}>
-                ${Number(product.old_price)?.toFixed(2)}
+                ${Number(product.price)?.toFixed(2)}
               </Text>
               {product.discount && (
                 <View style={[styles.saveBadge, { backgroundColor: colors.error, paddingHorizontal: responsive.padding.xs, paddingVertical: responsive.padding.xs }]}>

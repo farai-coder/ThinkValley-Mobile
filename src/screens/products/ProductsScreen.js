@@ -35,11 +35,13 @@ const ProductsScreen = () => {
     return grid.columns.sm;
   }, [screenWidth, breakpoints, grid]);
 
+  // Load all products + categories once; category filtering is done
+  // client-side below (matches the web app, which filters in JS by slug).
   const loadData = useCallback(async () => {
     try {
       const [categoriesData, productsData] = await Promise.all([
         categoryService.getCategories(),
-        productService.getProducts(selectedCategory ? { category: selectedCategory } : {}),
+        productService.getProducts({}),
       ]);
       setCategories(categoriesData.results || categoriesData);
       setProducts(productsData.results || productsData);
@@ -48,7 +50,7 @@ const ProductsScreen = () => {
     } finally {
       setIsLoading(false);
     }
-  }, [selectedCategory]);
+  }, []);
 
   useEffect(() => {
     loadData();
@@ -58,15 +60,41 @@ const ProductsScreen = () => {
     setSelectedCategory(categoryId);
   }, []);
 
+  // Client-side category filter (web parity): match on category id or slug.
+  const filteredProducts = useMemo(() => {
+    if (!selectedCategory) return products;
+    const cat = categories.find(c => c.id === selectedCategory);
+    if (!cat) return products;
+    return products.filter(
+      p => p.category === selectedCategory || p.category === cat.slug || p.category_slug === cat.slug
+    );
+  }, [products, categories, selectedCategory]);
+
+  // Client-side search (web parity): the products endpoint ignores the
+  // `search` param, so the web app matches terms in JS over
+  // title/category/description — we do the same here.
   const handleSearch = useCallback(async (query) => {
     try {
-      const results = await productService.searchProducts(query);
-      return results;
+      let source = products;
+      if (!source.length) {
+        const data = await productService.getProducts({});
+        source = data.results || data;
+      }
+      const terms = (query || '').toLowerCase().split(' ').filter(term => term.length > 0);
+      if (!terms.length) return source;
+      return source.filter(p => {
+        const name = (p.name || '').toLowerCase();
+        const category = (p.category_name || p.category || '').toLowerCase();
+        const desc = (p.short_description || p.description || '').toLowerCase();
+        return terms.some(
+          term => name.includes(term) || category.includes(term) || desc.includes(term)
+        );
+      });
     } catch (error) {
       console.error('Search failed:', error);
-      return { results: [] };
+      return [];
     }
-  }, []);
+  }, [products]);
 
   const handleBack = useCallback(() => {
     navigation.goBack();
@@ -136,7 +164,7 @@ const ProductsScreen = () => {
             <LoadingGrid columns={numColumns} rows={4} />
           ) : (
             <FlatList
-              data={products}
+              data={filteredProducts}
               renderItem={renderProductItem}
               keyExtractor={keyExtractor}
               numColumns={numColumns}

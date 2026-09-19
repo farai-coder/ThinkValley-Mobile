@@ -1,5 +1,5 @@
 import React, { memo, useState, useCallback } from 'react';
-import { View, StyleSheet, TouchableOpacity, Animated, Alert } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Animated, Alert } from 'react-native';
 import { useTheme } from '../../context/ThemeContext';
 import { useCart } from '../../context/CartContext';
 import { useNavigation } from '@react-navigation/native';
