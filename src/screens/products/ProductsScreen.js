@@ -86,7 +86,8 @@ const ProductsScreen = () => {
         const name = (p.name || '').toLowerCase();
         const category = (p.category_name || p.category || '').toLowerCase();
         const desc = (p.short_description || p.description || '').toLowerCase();
-        return terms.some(
+        // Every term must match some field (AND across terms, like the web).
+        return terms.every(
           term => name.includes(term) || category.includes(term) || desc.includes(term)
         );
       });
