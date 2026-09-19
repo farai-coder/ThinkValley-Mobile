@@ -1,0 +1,35 @@
+{
+  "expo": {
+    "name": "ThinkValley Store",
+    "slug": "thinkvalley-store",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/logo.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/logo.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#F47A20"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.thinkvalley.store",
+      "scheme": "thinkvalley"
+    },
+    "android": {
+      "package": "com.thinkvalley.store",
+      "scheme": "thinkvalley"
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "thinkvalley-store"
+      }
+    }
+  }
+}
